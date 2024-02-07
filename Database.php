@@ -26,7 +26,7 @@ class Database implements DatabaseInterface
 				}
 			} elseif (is_string($val) && in_array($type, ['#', ''])) { # Для строк и идентификаторов (позволяем использовать числа: $type == '#' && is_numeric($val)
 				return $q.$this->mysqli->real_escape_string($val).$q; # Cтроки и идентификаторы автоматически экранируются.
-			} elseif (in_array($type, ['d', 'f', ''])) { # Числа
+			} elseif (in_array($type, ['d', 'f', ''])) { # Числа & null
 				# ?, ?d, ?f могут принимать значения null (в этом случае в шаблон вставляется NULL)
 				return is_null($val) ? 'NULL' : (($type == 'd' || is_bool($val)) ? (int) $val : $val);
 			}
