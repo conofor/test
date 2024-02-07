@@ -31,14 +31,15 @@ class Database implements DatabaseInterface
 				return is_null($val) ? 'NULL' : (($type == 'd' || is_bool($val)) ? (int) $val : $val);
 			}
 
-			throw new Exception("Неверный тип значения");
+			throw new Exception("Неверный тип значения"); # При ошибках в шаблонах или значениях выбрасывать исключения.
 		};
 
 		$k = 0;
-		$query = preg_replace_callback('/(\s|\()\?([dfa\#])?(\s|\)|\}|$)/', function($ms) use (&$k, &$transformValue, &$args) {
-			return "{$ms[1]}{$transformValue($args[$k++], $ms[2], $ms[2] == '#' ? "`" : "'")}{$ms[3]}";
+		$query = preg_replace_callback('/(\s|\()\?([dfa\#])?(\s|\)|\}|$)/', function($ms) use (&$k, &$transformValue, &$args) { # спецификаторы
+			return "{$ms[1]}{$transformValue($args[$k++], $ms[2], $ms[2] == '#' ? "`" : "'")}{$ms[3]}"; # $ms[1], $ms[3] - \s()}
 		}, $query);
 
+		# Если внутри условного блока есть хотя бы один параметр со специальным значением, то блок не попадает в сформированный запрос.
 		return preg_replace_callback('/\{([^}]+)\}/', fn($ms) => str_contains($ms[1], $this->skip()) ? '' : $ms[1], $query);
 	}
 
