@@ -36,7 +36,7 @@ class Database implements DatabaseInterface
 
 		$k = 0;
 		$query = preg_replace_callback('/(\s|\()\?([dfa\#])?(\s|\)|\}|$)/', function($ms) use (&$k, &$transformValue, &$args) { # спецификаторы
-			return $ms[1] . $transformValue($args[$k++], $ms[2], ($ms[2] == '#' ? "`" : "'")) . $ms[3]; # $ms[1], $ms[3] - \s()}
+			return $ms[1].$transformValue($args[$k++], $ms[2], ($ms[2] == '#' ? "`" : "'")).$ms[3]; # $ms[1], $ms[3] - \s()}
 		}, $query);
 
 		# Если внутри условного блока есть хотя бы один параметр со специальным значением, то блок не попадает в сформированный запрос.
