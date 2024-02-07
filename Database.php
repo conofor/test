@@ -17,7 +17,7 @@ class Database implements DatabaseInterface
 	{
 		$transformValue = function ($val, string $type, string $q = "'") use (&$transformValue) {
 			if (is_array($val)) { # Массивы  ни к чему не приводятся кроме как к строке
-				if (in_array($type, ['#', 'a'])) { # Возможен идентификатор в виде массива
+				if (in_array($type, ['#', 'a'])) { # Вероятен идентификатор как массив
 					foreach ($val as $k => $v) {
 						# (ключ = значение) только для ?a - спецификатора
 						$val[$k] = ((is_numeric($k) || $type == '#') ? '' : "`$k` = ") . $transformValue($v, '', $q);
