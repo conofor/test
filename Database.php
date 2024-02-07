@@ -20,7 +20,7 @@ class Database implements DatabaseInterface
 				if (in_array($type, ['#', 'a'])) { # Вероятен идентификатор как массив
 					foreach ($val as $k => $v) {
 						# (ключ = значение) только для ?a - спецификатора, значение форматируется в зависимости от его типа (идентично
-						$val[$k] = ((is_numeric($k) || $type == '#') ? '' : "`$k` = ") . $transformValue($v, '', $q); # универсальному параметру без спецификатора)
+						$val[$k] = ((is_numeric($k) || $type == '#') ? '' : "`$k` = ") . $transformValue($v, '', $q); # '' - универсальному параметру без спецификатора)
 					}
 					return implode(', ', $val);
 				}
