@@ -29,7 +29,7 @@ class Database implements DatabaseInterface
 			} elseif (in_array($type, ['d', 'f', ''])) { # Числа & null
 				# return is_null($val) ? 'NULL' : (($type == 'd' || is_bool($val)) ? (int) $val : $val);
 				if (is_numeric($val) || is_bool($val)) {
-					return ($type == 'd' ? (int) $val : (float) $val);
+					return $type == 'd' ? (int) $val : (float) $val;
 				} elseif (is_null($val)) { # ?, ?d, ?f могут принимать значения null (в этом случае в шаблон вставляется NULL)
 					return 'NULL';
 				}
