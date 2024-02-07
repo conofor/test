@@ -16,16 +16,19 @@ class Database implements DatabaseInterface
 	public function buildQuery(string $query, array $args = []): string
 	{
 		$transformValue = function ($val, string $type, string $q = "'") use (&$transformValue) {
-			if (is_array($val)) { # Массивы  ни к чему не приводятся
-				if (in_array($type, ['#', 'a'])) {
+			if (is_array($val)) { # Массивы  ни к чему не приводятся кроме как к строке
+				if (in_array($type, ['#', 'a'])) { # Возможен идентификатор в виде массива
 					foreach ($val as $k => $v) {
-						$val[$k] = (is_numeric($k) ? '' : "`$k` = ") . $transformValue($v, '', $q);
+						# (ключ = значение) только для ?a - спецификатора
+						$val[$k] = ((is_numeric($k) || $type == '#') ? '' : "`$k` = ") . $transformValue($v, '', $q);
 					}
 					return implode(', ', $val);
 				}
-			} elseif (is_string($val) && in_array($type, ['#', ''])) { # Для строк и идентификаторов (позволяем использовать числа: $type == '#' && is_numeric($val)
+			} elseif (is_string($val) && in_array($type, ['#', ''])) {
+				# Для строк и идентификаторов (позволяем использовать числа: $type == '#' && is_numeric($val)
 				return $q.$this->mysqli->real_escape_string($val).$q;
 			} elseif (in_array($type, ['d', 'f', ''])) { # Числа
+				# ?, ?d, ?f могут принимать значения null (в этом случае в шаблон вставляется NULL)
 				return is_null($val) ? 'NULL' : (($type == 'd' || is_bool($val)) ? (int) $val : $val);
 			}
 
