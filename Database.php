@@ -16,13 +16,13 @@ class Database implements DatabaseInterface
 	public function buildQuery(string $query, array $args = []): string
 	{
 		$transformValue = function ($val, string $type, string $q = "'") use (&$transformValue) {
-			if (is_array($val)) { # Массивы  ни к чему не приводятся кроме как к строке
+			if (is_array($val)) { # Массивы
 				if (in_array($type, ['#', 'a'])) { # Вероятен идентификатор как массив
 					foreach ($val as $k => $v) {
 						# (ключ = значение) только для ?a - спецификатора, значение форматируется в зависимости от его типа (идентично
 						$val[$k] = ((is_numeric($k) || $type == '#') ? '' : "`$k` = ") . $transformValue($v, '', $q); # '' - универсальному параметру без спецификатора)
 					}
-					return implode(', ', $val);
+					return implode(', ', $val); # Массивы  ни к чему не приводятся кроме как к строке
 				}
 			} elseif (is_string($val) && in_array($type, ['#', ''])) { # Для строк и идентификаторов (позволяем использовать числа: $type == '#' && is_numeric($val)
 				return $q.$this->mysqli->real_escape_string($val).$q; # Cтроки и идентификаторы автоматически экранируются.
