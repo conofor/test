@@ -27,8 +27,12 @@ class Database implements DatabaseInterface
 			} elseif (is_string($val) && in_array($type, ['#', ''])) { # Для строк и идентификаторов (позволяем использовать числа: $type == '#' && is_numeric($val)
 				return $q.$this->mysqli->real_escape_string($val).$q; # Cтроки и идентификаторы автоматически экранируются.
 			} elseif (in_array($type, ['d', 'f', ''])) { # Числа & null
-				# ?, ?d, ?f могут принимать значения null (в этом случае в шаблон вставляется NULL)
-				return is_null($val) ? 'NULL' : (($type == 'd' || is_bool($val)) ? (int) $val : $val);
+				# return is_null($val) ? 'NULL' : (($type == 'd' || is_bool($val)) ? (int) $val : $val);
+				if (is_numeric($val) || is_bool($val)) {
+					return ($type == 'd' ? (int) $val : (float) $val);
+				} elseif (is_null($val)) { # ?, ?d, ?f могут принимать значения null (в этом случае в шаблон вставляется NULL)
+					return 'NULL';
+				}
 			}
 
 			throw new Exception("Неверный тип значения"); # При ошибках в шаблонах или значениях выбрасывать исключения.
@@ -36,7 +40,7 @@ class Database implements DatabaseInterface
 
 		$k = 0;
 		$query = preg_replace_callback('/(\s|\()\?([dfa\#])?(\s|\)|\}|$)/', function($ms) use (&$k, &$transformValue, &$args) { # спецификаторы
-			return $ms[1].$transformValue($args[$k++], $ms[2], ($ms[2] == '#' ? "`" : "'")).$ms[3]; # $ms[1], $ms[3] - \s()}
+			return $ms[1] . $transformValue($args[$k++], $ms[2], ($ms[2] == '#' ? "`" : "'")) . $ms[3]; # $ms[1], $ms[3] - \s()}
 		}, $query);
 
 		# Если внутри условного блока есть хотя бы один параметр со специальным значением, то блок не попадает в сформированный запрос.
